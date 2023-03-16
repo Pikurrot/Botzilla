@@ -17,8 +17,11 @@ bot = commands.Bot(
 
 
 @bot.command()
-async def dream(ctx, *, prompt):
-    msg = await ctx.send(f"“{prompt}”\n> Generating...")
+async def m(ctx, *, prompt):
+  msg = await ctx.send(f"“{prompt}”\n> Generating...")
+
+  await msg.edit(content=f"You said {prompt}, I say xd")
+
 
     await msg.edit(content=f"You said {prompt}, I say xd")
 

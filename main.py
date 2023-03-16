@@ -10,8 +10,8 @@ intents = Intents.default()
 intents.message_content = True
 
 bot = commands.Bot(
-    command_prefix="!",
     description="description haha xd",
+    command_prefix="$",
     intents=intents,
 )
 

@@ -112,6 +112,33 @@ async def movie_info(ctx, *, title):
 
     await msg.edit(content=message)
 
+@bot.command()
+async def movie_reviews(ctx, *, title):
+    msg = await ctx.send(f"Searching for reviews of {title}...")
+    
+    # Search for the movie
+    results = ia.search_movie(title)
+    if not results:
+        await msg.edit(content=f"No results found for {title}.")
+        return
+    
+    # Get the first search result (most likely the correct movie)
+    movie = ia.get_movie(results[0].getID())
+    
+    # Get the user reviews
+    ia.update(movie, 'reviews')
+    user_reviews = movie.get('reviews', [])[:3]
+    
+    # Show the reviews in different messages
+    content = user_reviews[0]['content'] if len(user_reviews[0]['content']) < 1000 else user_reviews[0]['content'][:1000] + "..."
+    reviews_str = f"- {user_reviews[0]['title']}  :  {user_reviews[0]['rating']}/10  ({user_reviews[0]['date']})\n{content}\n\n"
+    await msg.edit(content=f"Reviews for {movie.get('title')}: \n\n{reviews_str}")
+
+    if len(user_reviews) < 2: return
+    for review in user_reviews[1:]:
+        content = review['content'] if len(review['content']) < 1000 else review['content'][:1000] + "..."
+        await ctx.send(f"- {review['title']}  :  {review['rating']}/10  ({review['date']})\n{content}\n\n")
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:  # ignore messages sent by the bot itself

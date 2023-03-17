@@ -35,6 +35,34 @@ async def top_movies(ctx):
   
   await msg.edit(content=lst)
 
+@bot.command()
+async def movie(ctx, *, title):
+    msg = await ctx.send(f"Searching for movie {title}...")
+    
+    # search for the movie
+    search_results = ia.search_movie(title)
+    if not search_results:
+        await msg.edit(content=f"No results found for {title}.")
+        return
+    
+    # get the first result
+    movie_id = search_results[0].movieID
+    movie_info = ia.get_movie(movie_id)
+    
+    # get movie information
+    movie_title = movie_info.get("title", "N/A")
+    movie_plot = movie_info.get("plot outline", "N/A")
+    movie_rating = movie_info.get("rating", "N/A")
+    movie_genres = ", ".join(movie_info.get("genres", []))
+    
+    # format the message
+    if movie_plot:
+        movie_message = f"Title: {movie_title}\nRating: {movie_rating}\nGenres: {movie_genres}\nPlot: {movie_plot}"
+    else:
+        movie_message = f"Title: {movie_title}\nRating: {movie_rating}\nGenres: {movie_genres}\nNo plot available."
+    
+    await msg.edit(content=movie_message)
+
 @bot.event
 async def on_message(message):
     if message.author == bot.user:  # ignore messages sent by the bot itself

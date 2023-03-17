@@ -19,6 +19,11 @@ bot = commands.Bot(
 	intents=intents,
 )
 
+@bot.command()
+async def commands(ctx):
+	commands = ["$m mensaje", "$top_movies n-m", "$movie título", "$movie_info título", "$movie_reviews título"]
+	string = "Commandos disponibles:\n" + "\n".join(commands)
+	await ctx.send(string)
 
 @bot.command()
 async def m(ctx, *, prompt):

@@ -15,16 +15,16 @@ intents.message_content = True
 
 bot = commands.Bot(
     command_prefix="$",
-    description="Your favourite slave bot.",
+    description="Tu esclavo bot favorito",
     intents=intents,
 )
 
 
 @bot.command()
 async def m(ctx, *, prompt):
-  msg = await ctx.send(f"“{prompt}”\n> Generating...")
+  msg = await ctx.send(f"“{prompt}”\n> Generando...")
 
-  await msg.edit(content=f"You said {prompt}, I say xd")
+  await msg.edit(content=f"Este comando aun no esta disponible :(")
 
 @bot.command()
 async def top_movies(ctx, *, arg = "1-10"):
@@ -35,9 +35,9 @@ async def top_movies(ctx, *, arg = "1-10"):
     m = min(max(1, int(m)), 250) - 1
     if n > m:
        n, m = m, n
-    msg = await ctx.send(f"Getting the {n+1} - {m+1} top movies...")
+    msg = await ctx.send(f"Obteniendo las {n+1} - {m+1} mejores pelis...")
   except:
-    msg = await ctx.send(f"Error: argument is not in a good format. Try: $top_movies 10 - 25")
+    msg = await ctx.send(f"Error: El argumento no esta en un buen formato. Prueba: $top_movies 10 - 25")
     return
 
   try:
@@ -46,17 +46,17 @@ async def top_movies(ctx, *, arg = "1-10"):
     
     await msg.edit(content=lst)
   except:
-     await msg.edit("Error: An error ocurred")
+     await msg.edit("Error: Lo siento, ha ocurrido un error")
 
 @bot.command()
 async def movie(ctx, *, title):
-    msg = await ctx.send(f"Searching for movie {title}...")
+    msg = await ctx.send(f"Buscando película \"{title}\"...")
     
     try:
         # search for the movie
         search_results = ia.search_movie(title)
         if not search_results:
-            await msg.edit(content=f"No results found for {title}.")
+            await msg.edit(content=f"No se encontraron resultados para \"{title}\".")
             return
         
         # get the first result
@@ -71,23 +71,23 @@ async def movie(ctx, *, title):
         
         # format the message
         if movie_plot:
-            movie_message = f"- Title: {movie_title}\n- Rating: {movie_rating}\n- Genres: {movie_genres}\n- Plot: {movie_plot}"
+            movie_message = f"- Título: {movie_title}\n- Puntuación: {movie_rating}\n- Géneros: {movie_genres}\n- Plot: {movie_plot}"
         else:
-            movie_message = f"- Title: {movie_title}\n- Rating: {movie_rating}\n- Genres: {movie_genres}\n- No plot available."
+            movie_message = f"- Título: {movie_title}\n- Puntuación: {movie_rating}\n- Géneros: {movie_genres}\n- Plot no disponible."
         
         await msg.edit(content=movie_message)
     except:
-       await msg.edit("Error: An error ocurred")
+       await msg.edit("Error: Lo siento, ha ocurrido un error")
 
 @bot.command()
 async def movie_info(ctx, *, title):
-    msg = await ctx.send(f"Searching for information about {title}...")
+    msg = await ctx.send(f"Buscando información para {title}...")
 
     try: 
         # Search for the movie
         results = ia.search_movie(title)
         if not results:
-            await msg.edit(content=f"No results found for {title}.")
+            await msg.edit(content=f"No results found for \"{title}\".")
             return
 
         # Get the first search result (most likely the correct movie)
@@ -106,30 +106,30 @@ async def movie_info(ctx, *, title):
         cast = ", ".join([actor.get('name', 'Unknown') for actor in movie.get('cast', [])[:10]])
 
         # Build the message
-        message = f"- Title: {movie_title}\n"
-        message += f"- Original title: {original_title}\n"
-        message += f"- Year: {year}\n"
-        message += f"- Rating: {rating}\n"
-        message += f"- Genres: {genres}\n"
+        message = f"- Título: {movie_title}\n"
+        message += f"- Título original: {original_title}\n"
+        message += f"- Año: {year}\n"
+        message += f"- Puntuación: {rating}\n"
+        message += f"- Género: {genres}\n"
         message += f"- Director: {director}\n"
-        message += f"- Writer: {writer}\n"
-        message += f"- Producer: {producer}\n"
-        message += f"- Production Companies: {production_companies}\n"
-        message += f"- Cast: {cast}"
+        message += f"- Escritor: {writer}\n"
+        message += f"- Productor: {producer}\n"
+        message += f"- Empresas productoras: {production_companies}\n"
+        message += f"- Reparto: {cast}"
 
         await msg.edit(content=message)
     except:
-       await msg.edit("Error: An error ocurred")
+       await msg.edit("Error: Lo siento, ha ocurrido un error")
 
 @bot.command()
 async def movie_reviews(ctx, *, title):
-    msg = await ctx.send(f"Searching for reviews of {title}...")
+    msg = await ctx.send(f"Buscando reseñas para \"{title}\"...")
     
     try:
         # Search for the movie
         results = ia.search_movie(title)
         if not results:
-            await msg.edit(content=f"No results found for {title}.")
+            await msg.edit(content=f"No se encontraror resultados para \"{title}\".")
             return
         
         # Get the first search result (most likely the correct movie)
@@ -142,22 +142,22 @@ async def movie_reviews(ctx, *, title):
         # Show the reviews in different messages
         content = user_reviews[0]['content'] if len(user_reviews[0]['content']) < 1000 else user_reviews[0]['content'][:1000] + "..."
         reviews_str = f"- {user_reviews[0]['title']}  :  {user_reviews[0]['rating']}/10  ({user_reviews[0]['date']})\n{content}\n\n"
-        await msg.edit(content=f"Reviews for {movie.get('title')}: \n\n{reviews_str}")
+        await msg.edit(content=f"Reseñas para {movie.get('title')}: \n\n{reviews_str}")
 
         if len(user_reviews) < 2: return
         for review in user_reviews[1:]:
             content = review['content'] if len(review['content']) < 1000 else review['content'][:1000] + "..."
             await ctx.send(f"- {review['title']}  :  {review['rating']}/10  ({review['date']})\n{content}\n\n")
     except:
-       await msg.edit("Error: An error ocurred")
+       await msg.edit("Error: Lo siento, ha ocurrido un error")
 
 @bot.event
 async def on_message(message):
     if message.author == bot.user:  # ignore messages sent by the bot itself
         return
 
-    if message.content.lower() == "hello":
-        await message.channel.send("Hello!")
+    if message.content.lower() == "hola":
+        await message.channel.send("Hola!")
 
     await bot.process_commands(message)
 

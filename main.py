@@ -67,11 +67,50 @@ async def movie(ctx, *, title):
     
     # format the message
     if movie_plot:
-        movie_message = f"Title: {movie_title}\nRating: {movie_rating}\nGenres: {movie_genres}\nPlot: {movie_plot}"
+        movie_message = f"- Title: {movie_title}\n- Rating: {movie_rating}\n- Genres: {movie_genres}\n- Plot: {movie_plot}"
     else:
-        movie_message = f"Title: {movie_title}\nRating: {movie_rating}\nGenres: {movie_genres}\nNo plot available."
+        movie_message = f"- Title: {movie_title}\n- Rating: {movie_rating}\n- Genres: {movie_genres}\n- No plot available."
     
     await msg.edit(content=movie_message)
+
+@bot.command()
+async def movie_info(ctx, *, title):
+    msg = await ctx.send(f"Searching for information about {title}...")
+
+    # Search for the movie
+    results = ia.search_movie(title)
+    if not results:
+        await msg.edit(content=f"No results found for {title}.")
+        return
+
+    # Get the first search result (most likely the correct movie)
+    movie = ia.get_movie(results[0].getID())
+
+    # Get the information
+    movie_title = movie.get('title')
+    original_title = movie.get('original title', 'Unknown')
+    year = movie.get('year', 'Unknown')
+    rating = movie.get('rating', 'Unknown')
+    genres = ", ".join(movie.get('genres', []))
+    director = movie.get('director', {})[0].get('name', 'Unknown')
+    writer = movie.get('writer', [{}])[0].get('name', 'Unknown')
+    producer = movie.get('producer', [{}])[0].get('name', 'Unknown')
+    production_companies = ", ".join([company.get('name', 'Unknown') for company in movie.get('production companies', [])])
+    cast = ", ".join([actor.get('name', 'Unknown') for actor in movie.get('cast', [])[:10]])
+
+    # Build the message
+    message = f"- Title: {movie_title}\n"
+    message += f"- Original title: {original_title}\n"
+    message += f"- Year: {year}\n"
+    message += f"- Rating: {rating}\n"
+    message += f"- Genres: {genres}\n"
+    message += f"- Director: {director}\n"
+    message += f"- Writer: {writer}\n"
+    message += f"- Producer: {producer}\n"
+    message += f"- Production Companies: {production_companies}\n"
+    message += f"- Cast: {cast}"
+
+    await msg.edit(content=message)
 
 @bot.event
 async def on_message(message):

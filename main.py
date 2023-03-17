@@ -176,5 +176,27 @@ async def on_message(message):
 
 	await bot.process_commands(message)
 
+@bot.command()
+async def joke(ctx):
+    try:
+        # Send a request to JokeAPI to get a random joke
+        response = requests.get("https://v2.jokeapi.dev/joke/Any")
+        data = response.json()
+
+        # Check if the response was successful
+        if response.status_code == 200 and data["type"] == "single":
+            # If the joke is a single line, just send it as a message
+            await ctx.send(data["joke"])
+        elif response.status_code == 200 and data["type"] == "twopart":
+            # If the joke has two parts, send both parts separately
+            await ctx.send(data["setup"])
+            await ctx.send(data["delivery"])
+        else:
+            # If the API returns an unexpected response, show an error message
+            await ctx.send("Error: No se pudo encontrar un chiste")
+    except:
+        # If there was an error with the request, show an error message
+        await ctx.send("Error: Lo siento, ha ocurrido un error")
+
 keep_alive()
 bot.run(os.environ["DISCORD_TOKEN"])

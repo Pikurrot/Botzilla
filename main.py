@@ -27,11 +27,21 @@ async def m(ctx, *, prompt):
   await msg.edit(content=f"You said {prompt}, I say xd")
 
 @bot.command()
-async def top_movies(ctx):
-  msg = await ctx.send("Accessing IMDb API...")
+async def top_movies(ctx, *, arg = "1-10"):
+  arg = arg.replace(" ", "")
+  try:
+    n, m = arg.split("-")
+    n = min(max(1, int(n)), 250) - 1
+    m = min(max(1, int(m)), 250) - 1
+    if n > m:
+       n, m = m, n
+    msg = await ctx.send(f"Getting the {n+1} - {m+1} top movies...")
+  except:
+    msg = await ctx.send(f"Error: argument is not in a good format. Try: $top_movies 10 - 25")
+    return
 
   top250 = ia.get_top250_movies()
-  lst = "\n".join([movie['title'] for movie in top250[:10]])
+  lst = "\n".join([f"{n+i+1}: {movie['title']}" for i, movie in enumerate(top250[n:m+1])])
   
   await msg.edit(content=lst)
 

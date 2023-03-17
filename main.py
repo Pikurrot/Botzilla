@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 from keep_alive import keep_alive
 import imdb
+import requests
 
 ia = imdb.IMDb()
 
@@ -155,6 +156,15 @@ async def movie_reviews(ctx, *, title):
 			await ctx.send(f"- {review['title']}  :  {review['rating']}/10  ({review['date']})\n{content}\n\n")
 	except:
 	   await msg.edit("Error: Lo siento, ha ocurrido un error")
+
+@bot.command()
+async def cat_fact(ctx):
+	try:
+		response = requests.get("https://catfact.ninja/fact")
+		fact = response.json()["fact"]
+		await ctx.send(fact)
+	except:
+	    await ctx.send("Error: Lo siento, ha ocurrido un error")
 
 @bot.event
 async def on_message(message):

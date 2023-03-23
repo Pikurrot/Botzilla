@@ -219,53 +219,49 @@ def get_location_info(location):
 
 @bot.command()
 async def location(ctx, location):
-	# Construct the API URL with the location query
-	url = f"https://nominatim.openstreetmap.org/search?q={location}&format=json"
+	msg = await ctx.send(f"Buscando ubicación: \"{location}\"...")
+	
+	try:
+		url = f"https://nominatim.openstreetmap.org/search?q={location}&format=json"
 
-	# Send a GET request to the API
-	response = requests.get(url)
+		response = requests.get(url)
 
-	# Parse the JSON response
-	data = response.json()[0]
+		data = response.json()[0]
 
-	# Check if any results were found
-	if not data:
-		await ctx.send("No results found for the given location.")
-		return
+		if not data:
+			await msg.edit("No results found for the given location.")
+			return
 
-	# Get the latitude and longitude of the first search result
-	lat, lon = float(data["lat"]), float(data["lon"])
+		lat, lon = float(data["lat"]), float(data["lon"])
 
-	# Get the location information dictionary
-	location_info = get_location_info(location)
+		location_info = get_location_info(location)
 
-	# Calculate the bounding box using the location information dictionary
-	bounds = location_info["bounds"]
-	bbox = f"{bounds['southwest']['lng']},{bounds['southwest']['lat']},{bounds['northeast']['lng']},{bounds['northeast']['lat']}"
+		bounds = location_info["bounds"]
+		bbox = f"{bounds['southwest']['lng']},{bounds['southwest']['lat']},{bounds['northeast']['lng']},{bounds['northeast']['lat']}"
 
-	# Construct the URL for the map image
-	map_url = f"https://www.openstreetmap.org/export/embed.html?bbox={bbox}&layer=mapnik&marker={lat},{lon}"
+		map_url = f"https://www.openstreetmap.org/export/embed.html?bbox={bbox}&layer=mapnik&marker={lat},{lon}"
 
-	# Set up the Selenium webdriver
-	options = Options()
-	options.headless = True
-	driver = webdriver.Chrome(options=options)
+		options = Options()
+		options.headless = True
+		driver = webdriver.Chrome(options=options)
 
-	# Load the map URL
-	driver.get(map_url)
+		driver.get(map_url)
 
-	# Wait for the map to load
-	time.sleep(0.3)
+		time.sleep(0.4)
 
-	# Take a screenshot of the map
-	screenshot = driver.get_screenshot_as_png()
+		screenshot = driver.get_screenshot_as_png()
 
-	# Clean up the webdriver
-	driver.quit()
+		driver.quit()
 
-	# Send the map image to the channel
-	file = discord.File(io.BytesIO(screenshot), filename="map.png")
-	await ctx.send(file=file)
+		file = discord.File(io.BytesIO(screenshot), filename="map.png")
+		
+		currency_name = location_info['annotations']['currency']['name']
+		currency_symbol = location_info['annotations']['currency']['symbol']
+
+		await msg.edit(file=file)
+		await ctx.send(f"{location_info['formatted']}\nCurrency: {currency_name} ({currency_symbol})")
+	except:
+		await msg.edit("Error: Lo siento, ha ocurrido un error")
 
 
 keep_alive()

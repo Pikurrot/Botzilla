@@ -1,3 +1,4 @@
+import discord
 from discord import Intents
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -5,6 +6,10 @@ import os
 from keep_alive import keep_alive
 import imdb
 import requests
+import io
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import time
 
 ia = imdb.IMDb()
 
@@ -197,6 +202,58 @@ async def joke(ctx):
 	except:
 		# If there was an error with the request, show an error message
 		await ctx.send("Error: Lo siento, ha ocurrido un error")
+
+@bot.command()
+async def location(ctx, location, zoom):
+	# Construct the API URL with the location query
+	url = f"https://nominatim.openstreetmap.org/search?q={location}&format=json"
+
+	# Send a GET request to the API
+	response = requests.get(url)
+
+	# Parse the JSON response
+	data = response.json()[0]
+
+	# Check if any results were found
+	if not data:
+		await ctx.send("No results found for the given location.")
+		return
+
+	# Get the latitude and longitude of the first search result
+	lat, lon = float(data["lat"]), float(data["lon"])
+
+	# Calculate the bounding box based on the zoom level
+	factor = int(zoom) * 0.05
+	bbox = f"{lon - factor},{lat - factor},{lon + factor},{lat + factor}"
+
+	# Set up the map size
+	size = "800x800"
+
+	# Construct the URL for the map image
+	map_url = f"https://www.openstreetmap.org/export/embed.html?bbox={bbox}&layer=mapnik&marker={lat},{lon}"
+	map_url += f"&zoom={zoom}&size={size}"
+
+	# Set up the Selenium webdriver
+	options = Options()
+	options.headless = True
+	driver = webdriver.Chrome(options=options)
+
+	# Load the map URL
+	driver.get(map_url)
+
+	# Wait for the map to load
+	time.sleep(0.3)
+
+	# Take a screenshot of the map
+	screenshot = driver.get_screenshot_as_png()
+
+	# Clean up the webdriver
+	driver.quit()
+
+	# Send the map image to the channel
+	file = discord.File(io.BytesIO(screenshot), filename="map.png")
+	await ctx.send(file=file)
+
 
 keep_alive()
 bot.run(os.environ["DISCORD_TOKEN"])

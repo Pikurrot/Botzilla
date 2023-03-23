@@ -203,6 +203,20 @@ async def joke(ctx):
 		# If there was an error with the request, show an error message
 		await ctx.send("Error: Lo siento, ha ocurrido un error")
 
+def get_location_info(location):
+	api_key = "bc4832167e424a2baadaf7ebd4822291"
+	url = f"https://api.opencagedata.com/geocode/v1/json?q={location}&key={api_key}"
+
+	response = requests.get(url)
+	data = response.json()
+
+	if not data["results"]:
+		return -1
+
+	result = data["results"][0]
+	
+	return result
+
 @bot.command()
 async def location(ctx, location, zoom):
 	# Construct the API URL with the location query

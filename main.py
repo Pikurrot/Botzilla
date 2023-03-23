@@ -218,7 +218,7 @@ def get_location_info(location):
 	return result
 
 @bot.command()
-async def location(ctx, location, zoom):
+async def location(ctx, location):
 	# Construct the API URL with the location query
 	url = f"https://nominatim.openstreetmap.org/search?q={location}&format=json"
 
@@ -236,16 +236,15 @@ async def location(ctx, location, zoom):
 	# Get the latitude and longitude of the first search result
 	lat, lon = float(data["lat"]), float(data["lon"])
 
-	# Calculate the bounding box based on the zoom level
-	factor = int(zoom) * 0.05
-	bbox = f"{lon - factor},{lat - factor},{lon + factor},{lat + factor}"
+	# Get the location information dictionary
+	location_info = get_location_info(location)
 
-	# Set up the map size
-	size = "800x800"
+	# Calculate the bounding box using the location information dictionary
+	bounds = location_info["bounds"]
+	bbox = f"{bounds['southwest']['lng']},{bounds['southwest']['lat']},{bounds['northeast']['lng']},{bounds['northeast']['lat']}"
 
 	# Construct the URL for the map image
 	map_url = f"https://www.openstreetmap.org/export/embed.html?bbox={bbox}&layer=mapnik&marker={lat},{lon}"
-	map_url += f"&zoom={zoom}&size={size}"
 
 	# Set up the Selenium webdriver
 	options = Options()

@@ -219,7 +219,9 @@ def get_location_info(location):
 
 @bot.command()
 async def location(ctx, location):
-	msg = await ctx.send(f"Buscando ubicación: \"{location}\"...")
+	msg = await ctx.send("Lo siento, este comando aún no está disponible.")
+	return
+	# msg = await ctx.send(f"Buscando ubicación: \"{location}\"...")
 	
 	try:
 		url = f"https://nominatim.openstreetmap.org/search?q={location}&format=json"
